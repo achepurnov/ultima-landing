@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ultima 5.5 — Самообучающаяся AI-оркестрация</title>
+<title>Ultima — история разработки</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap');
 
@@ -49,8 +49,7 @@
 
   ::selection { background: var(--accent); color: #fff; }
 
-  /* ─── Particles Canvas ─── */
-  #particles-canvas {
+  #canvas {
     position: fixed;
     top: 0; left: 0;
     width: 100vw; height: 100vh;
@@ -69,7 +68,6 @@
     justify-content: space-between;
     background: rgba(10, 10, 15, 0.85);
     backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
     border-bottom: 1px solid var(--border);
   }
 
@@ -82,7 +80,7 @@
     letter-spacing: -0.03em;
   }
 
-  .nav-logo .logo-icon {
+  .nav-logo .icon {
     width: 32px; height: 32px;
     border-radius: 8px;
     background: var(--gradient-1);
@@ -94,8 +92,6 @@
     color: #fff;
   }
 
-  .nav-logo span { background: var(--gradient-3); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-
   .nav-links { display: flex; gap: 32px; align-items: center; }
   .nav-links a {
     color: var(--text-secondary);
@@ -106,7 +102,7 @@
   }
   .nav-links a:hover { color: var(--text-primary); }
 
-  .nav-version {
+  .nav-badge {
     padding: 4px 12px;
     border-radius: 20px;
     background: var(--accent-glow);
@@ -141,378 +137,315 @@
     pointer-events: none;
   }
 
-  .hero-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 6px 16px 6px 8px;
-    border-radius: 100px;
-    background: var(--accent-glow);
-    border: 1px solid var(--border-accent);
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--accent-light);
-    margin-bottom: 32px;
-    position: relative;
-  }
-
-  .hero-badge .dot {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    background: var(--green);
-    box-shadow: 0 0 8px var(--green-glow);
-    animation: pulse 2s infinite;
-  }
-
-  @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.4; }
-  }
-
   .hero h1 {
-    font-size: clamp(48px, 8vw, 96px);
+    font-size: clamp(40px, 7vw, 80px);
     font-weight: 900;
     letter-spacing: -0.04em;
     line-height: 1.05;
-    margin-bottom: 24px;
+    margin-bottom: 20px;
     position: relative;
   }
 
-  .hero h1 .gradient { background: var(--gradient-3); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .hero h1 .g { background: var(--gradient-3); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 
-  .hero p {
+  .hero .subtitle {
     font-size: clamp(16px, 2vw, 22px);
     color: var(--text-secondary);
-    max-width: 640px;
-    margin-bottom: 48px;
+    max-width: 600px;
+    margin-bottom: 16px;
     position: relative;
   }
 
-  .hero-actions {
+  .hero .meta {
+    font-size: 14px;
+    color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace;
+    position: relative;
+  }
+
+  .hero .meta span { color: var(--text-secondary); }
+
+  /* ─── Stats bar ─── */
+  .stats-bar {
     display: flex;
-    gap: 16px;
+    gap: 48px;
+    margin-top: 48px;
     flex-wrap: wrap;
     justify-content: center;
     position: relative;
   }
 
-  .btn {
-    padding: 14px 32px;
-    border-radius: 12px;
-    font-size: 15px;
-    font-weight: 600;
-    text-decoration: none;
-    transition: all 0.3s;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    cursor: pointer;
-    border: none;
-    font-family: 'Inter', sans-serif;
-  }
-
-  .btn-primary {
-    background: var(--gradient-1);
-    color: #fff;
-    box-shadow: 0 4px 24px var(--accent-glow);
-  }
-  .btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 40px rgba(108, 92, 231, 0.3);
-  }
-
-  .btn-secondary {
-    background: var(--bg-card);
-    color: var(--text-primary);
-    border: 1px solid var(--border);
-  }
-  .btn-secondary:hover {
-    background: var(--bg-card-hover);
-    border-color: var(--border-accent);
-    transform: translateY(-2px);
-  }
-
-  .hero-stats {
-    display: flex;
-    gap: 48px;
-    margin-top: 64px;
-    position: relative;
-  }
-
-  .hero-stat { text-align: center; }
-  .hero-stat .num {
-    font-size: 32px;
+  .stat-item { text-align: center; }
+  .stat-item .num {
+    font-size: 28px;
     font-weight: 800;
     font-family: 'JetBrains Mono', monospace;
     background: var(--gradient-1);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
   }
-  .hero-stat .label {
-    font-size: 13px;
+  .stat-item .label {
+    font-size: 12px;
     color: var(--text-muted);
     margin-top: 4px;
   }
-  .hero-stat-divider {
-    width: 1px;
-    background: var(--border);
-    align-self: stretch;
+  .stat-div { width: 1px; background: var(--border); align-self: stretch; }
+
+  .scroll-hint {
+    position: absolute;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-muted);
+    font-size: 12px;
+    animation: float 2s infinite;
+  }
+  .scroll-hint .chev {
+    width: 16px; height: 16px;
+    border-right: 2px solid var(--text-muted);
+    border-bottom: 2px solid var(--text-muted);
+    transform: rotate(45deg);
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(8px); }
   }
 
   /* ─── Sections ─── */
   section { position: relative; z-index: 1; }
 
-  .section-header {
-    text-align: center;
-    margin-bottom: 64px;
-  }
-  .section-header h2 {
-    font-size: clamp(32px, 4vw, 48px);
-    font-weight: 800;
-    letter-spacing: -0.03em;
-    margin-bottom: 16px;
-  }
-  .section-header p {
-    color: var(--text-secondary);
-    font-size: 18px;
-    max-width: 600px;
-    margin: 0 auto;
-  }
-  .section-header .overline {
-    font-size: 12px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.15em;
-    color: var(--accent-light);
-    margin-bottom: 16px;
-  }
-
   .container {
-    max-width: 1200px;
+    max-width: 1000px;
     margin: 0 auto;
     padding: 0 24px;
   }
 
-  /* ─── Architecture ─── */
-  #architecture { padding: 100px 0; }
-
-  .tiers-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 16px;
+  .section-header {
+    text-align: center;
+    margin-bottom: 56px;
+  }
+  .section-header h2 {
+    font-size: clamp(28px, 3.5vw, 40px);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    margin-bottom: 12px;
+  }
+  .section-header p {
+    color: var(--text-secondary);
+    font-size: 16px;
   }
 
-  .tier-card {
+  /* ─── Timeline ─── */
+  #timeline { padding: 100px 0; }
+
+  .timeline { position: relative; padding-left: 40px; }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 0; bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--accent), var(--green), var(--cyan));
+  }
+
+  .tl-item {
+    position: relative;
+    margin-bottom: 40px;
+    padding: 24px 28px;
     background: var(--bg-card);
     border: 1px solid var(--border);
     border-radius: 16px;
-    padding: 24px;
     transition: all 0.3s;
-    position: relative;
-    overflow: hidden;
   }
-  .tier-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 3px;
-    background: var(--gradient-1);
-    opacity: 0;
-    transition: opacity 0.3s;
-  }
-  .tier-card:hover::before { opacity: 1; }
-  .tier-card:hover {
+  .tl-item:hover {
     background: var(--bg-card-hover);
     border-color: var(--border-accent);
-    transform: translateY(-4px);
+    transform: translateX(4px);
   }
 
-  .tier-card .tier-num {
+  .tl-item::before {
+    content: '';
+    position: absolute;
+    left: -33px;
+    top: 28px;
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    border: 2px solid var(--accent);
+    background: var(--bg-primary);
+  }
+  .tl-item.highlight::before { border-color: var(--green); background: var(--green); }
+  .tl-item.critical::before { border-color: var(--orange); }
+
+  .tl-date {
     font-family: 'JetBrains Mono', monospace;
     font-size: 12px;
     font-weight: 700;
     color: var(--accent-light);
-    margin-bottom: 8px;
+    margin-bottom: 4px;
   }
-  .tier-card h3 {
-    font-size: 16px;
+
+  .tl-item h3 {
+    font-size: 18px;
     font-weight: 700;
     margin-bottom: 8px;
   }
-  .tier-card p {
-    font-size: 13px;
+
+  .tl-item p {
+    font-size: 14px;
     color: var(--text-secondary);
     line-height: 1.5;
   }
 
-  /* ─── Agents ─── */
-  #agents { padding: 100px 0; background: var(--bg-secondary); }
-
-  .agents-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 12px;
-  }
-
-  .agent-chip {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 16px 20px;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    transition: all 0.3s;
-  }
-  .agent-chip:hover {
-    background: var(--bg-card-hover);
-    border-color: var(--border-accent);
-    transform: translateY(-2px);
-  }
-  .agent-chip .icon {
-    width: 36px; height: 36px;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 16px;
-    flex-shrink: 0;
-  }
-  .agent-chip .name {
-    font-size: 14px;
+  .tl-item .tag {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 6px;
+    font-size: 11px;
     font-weight: 600;
+    margin-top: 8px;
+    margin-right: 6px;
   }
-  .agent-chip .role {
-    font-size: 12px;
-    color: var(--text-muted);
-  }
+  .tag-red { background: rgba(255, 107, 107, 0.12); color: var(--red); }
+  .tag-green { background: var(--green-glow); color: var(--green); }
+  .tag-purple { background: var(--accent-glow); color: var(--accent-light); }
+  .tag-blue { background: rgba(0, 180, 216, 0.12); color: var(--cyan); }
+  .tag-orange { background: rgba(255, 159, 67, 0.12); color: var(--orange); }
 
-  /* ─── Features ─── */
-  #features { padding: 100px 0; }
+  /* ─── Stats ─── */
+  #stats { padding: 100px 0; background: var(--bg-secondary); }
 
-  .features-grid {
+  .stats-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
   }
 
-  .feature-card {
+  .st-card {
     background: var(--bg-card);
     border: 1px solid var(--border);
-    border-radius: 20px;
-    padding: 32px;
+    border-radius: 16px;
+    padding: 28px;
+    text-align: center;
     transition: all 0.3s;
   }
-  .feature-card:hover {
+  .st-card:hover {
     background: var(--bg-card-hover);
     border-color: var(--border-accent);
     transform: translateY(-4px);
   }
 
-  .feature-card .f-icon {
-    width: 48px; height: 48px;
-    border-radius: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 22px;
-    margin-bottom: 20px;
+  .st-card .big {
+    font-size: 36px;
+    font-weight: 800;
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--gradient-1);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    line-height: 1.2;
   }
-  .feature-card .f-icon.purple { background: var(--accent-glow); }
-  .feature-card .f-icon.green { background: var(--green-glow); }
-  .feature-card .f-icon.cyan { background: rgba(0, 180, 216, 0.12); }
-  .feature-card .f-icon.orange { background: rgba(255, 159, 67, 0.12); }
 
-  .feature-card h3 {
-    font-size: 18px;
-    font-weight: 700;
-    margin-bottom: 10px;
-  }
-  .feature-card p {
-    font-size: 14px;
+  .st-card .desc {
+    font-size: 13px;
     color: var(--text-secondary);
-    line-height: 1.6;
+    margin-top: 8px;
   }
 
-  /* ─── Skills ─── */
-  #skills { padding: 100px 0; background: var(--bg-secondary); }
+  .st-card .sub {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
 
-  .skills-categories {
+  /* ─── Benchmarks ─── */
+  #benchmarks { padding: 100px 0; }
+
+  .bm-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+    justify-content: center;
+    padding: 40px 0;
+    flex-wrap: wrap;
+  }
+
+  .bm-bar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .bm-bar .rect {
+    width: 56px;
+    border-radius: 8px 8px 0 0;
+    min-height: 8px;
+    transition: all 0.3s;
+    position: relative;
+  }
+  .bm-bar:hover .rect { opacity: 0.8; transform: scaleX(1.1); }
+
+  .bm-bar .perc {
+    font-size: 13px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .bm-bar .lbl {
+    font-size: 11px;
+    color: var(--text-muted);
+    text-align: center;
+    max-width: 70px;
+  }
+
+  /* ─── Tech ─── */
+  #tech { padding: 100px 0; background: var(--bg-secondary); }
+
+  .tech-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 24px;
+    gap: 20px;
   }
 
-  .skill-cat {
+  .tech-card {
     background: var(--bg-card);
     border: 1px solid var(--border);
     border-radius: 16px;
     padding: 28px;
+    transition: all 0.3s;
   }
-  .skill-cat h3 {
+  .tech-card:hover {
+    background: var(--bg-card-hover);
+    border-color: var(--border-accent);
+  }
+
+  .tech-card h3 {
     font-size: 16px;
     font-weight: 700;
-    margin-bottom: 16px;
+    margin-bottom: 12px;
     display: flex;
     align-items: center;
     gap: 8px;
   }
-  .skill-cat .count {
-    font-size: 12px;
-    color: var(--text-muted);
-    font-weight: 400;
-    font-family: 'JetBrains Mono', monospace;
-  }
-  .skill-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-  .skill-tag {
-    padding: 6px 14px;
-    border-radius: 8px;
-    background: var(--bg-secondary);
-    border: 1px solid var(--border);
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--text-secondary);
-    transition: all 0.2s;
-  }
-  .skill-tag:hover {
-    border-color: var(--border-accent);
-    color: var(--text-primary);
-    background: var(--bg-card-hover);
+
+  .tech-card ul {
+    list-style: none;
+    padding: 0;
   }
 
-  /* ─── CTA ─── */
-  .cta-section {
-    padding: 120px 0;
-    text-align: center;
-    position: relative;
-  }
-  .cta-section::before {
-    content: '';
-    position: absolute;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    width: 600px; height: 600px;
-    background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
-    pointer-events: none;
-  }
-  .cta-section h2 {
-    font-size: clamp(32px, 4vw, 56px);
-    font-weight: 800;
-    letter-spacing: -0.03em;
-    margin-bottom: 20px;
-    position: relative;
-  }
-  .cta-section p {
+  .tech-card li {
+    font-size: 13px;
     color: var(--text-secondary);
-    font-size: 18px;
-    max-width: 560px;
-    margin: 0 auto 36px;
-    position: relative;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
   }
+  .tech-card li:last-child { border: none; }
+  .tech-card li .val { color: var(--text-primary); font-weight: 600; }
 
   /* ─── Footer ─── */
   footer {
@@ -529,369 +462,382 @@
   footer a { color: var(--text-secondary); text-decoration: none; }
   footer a:hover { color: var(--text-primary); }
 
-  /* ─── Scroll indicator ─── */
-  .scroll-indicator {
-    position: absolute;
-    bottom: 32px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    color: var(--text-muted);
-    font-size: 12px;
-    animation: float 2s infinite;
-  }
-  .scroll-indicator .chevron {
-    width: 20px; height: 20px;
-    border-right: 2px solid var(--text-muted);
-    border-bottom: 2px solid var(--text-muted);
-    transform: rotate(45deg);
-  }
-
-  @keyframes float {
-    0%, 100% { transform: translateX(-50%) translateY(0); }
-    50% { transform: translateX(-50%) translateY(8px); }
-  }
-
-  /* ─── Responsive ─── */
   @media (max-width: 768px) {
     nav { padding: 16px 24px; }
     .nav-links { display: none; }
-    .hero-stats { gap: 24px; flex-wrap: wrap; justify-content: center; }
-    .hero-stat-divider { display: none; }
-    .features-grid { grid-template-columns: 1fr; }
+    .stats-bar { gap: 24px; }
+    .stat-div { display: none; }
+    .timeline { padding-left: 28px; }
+    .tl-item::before { left: -22px; }
+    .bm-chart { gap: 8px; }
+    .bm-bar .rect { width: 40px; }
     footer { flex-direction: column; gap: 12px; text-align: center; }
   }
 </style>
 </head>
 <body>
 
-<canvas id="particles-canvas"></canvas>
+<canvas id="canvas"></canvas>
 
-<!-- Nav -->
 <nav>
   <div class="nav-logo">
-    <div class="logo-icon">U</div>
+    <div class="icon">U</div>
     <span>Ultima</span>
   </div>
   <div class="nav-links">
-    <a href="#architecture">Архитектура</a>
-    <a href="#agents">Агенты</a>
-    <a href="#features">Возможности</a>
-    <a href="#skills">Скиллы</a>
-    <span class="nav-version">v5.5.11</span>
+    <a href="#timeline">Хронология</a>
+    <a href="#stats">Цифры</a>
+    <a href="#benchmarks">Бенчмарки</a>
+    <a href="#tech">Технологии</a>
+    <span class="nav-badge">30 дней разработки</span>
   </div>
 </nav>
 
-<!-- Hero -->
 <section class="hero">
-  <div class="hero-badge">
-    <span class="dot"></span>
-    Активная разработка · v5.5.11
+  <h1>История создания<br><span class="g">Ultima 5.5</span></h1>
+  <p class="subtitle">Как за 30 дней форк открытого AI-агента превратился в self-learning платформу с 15+ агентами, 65 скиллами и автономным самоулучшением</p>
+  <p class="meta">25 мая 2026 — 23 июня 2026 · <span>~73 500 строк кода</span></p>
+  <div class="stats-bar">
+    <div class="stat-item"><div class="num">12</div><div class="label">Релизов</div></div>
+    <div class="stat-div"></div>
+    <div class="stat-item"><div class="num">886</div><div class="label">Файлов</div></div>
+    <div class="stat-div"></div>
+    <div class="stat-item"><div class="num">15+</div><div class="label">Агентов</div></div>
+    <div class="stat-div"></div>
+    <div class="stat-item"><div class="num">65</div><div class="label">Скиллов</div></div>
+    <div class="stat-div"></div>
+    <div class="stat-item"><div class="num">577</div><div class="label">МБ проекта</div></div>
   </div>
-  <h1>
-    Самообучающаяся<br>
-    <span class="gradient">AI-оркестрация</span>
-  </h1>
-  <p>
-    Мульти-агентная платформа, которая декомпозирует сложные задачи в DAG-графы,
-    делегирует специализированным агентам, верифицирует через Mixture-of-Agents консилиум
-    и непрерывно улучшается через циклы рефлексии.
-  </p>
-  <div class="hero-actions">
-    <a href="#architecture" class="btn btn-primary">Изучить архитектуру ↓</a>
-    <a href="#features" class="btn btn-secondary">Возможности</a>
-  </div>
-  <div class="hero-stats">
-    <div class="hero-stat">
-      <div class="num">15+</div>
-      <div class="label">Специализированных агентов</div>
-    </div>
-    <div class="hero-stat-divider"></div>
-    <div class="hero-stat">
-      <div class="num">65</div>
-      <div class="label">Доменных скиллов</div>
-    </div>
-    <div class="hero-stat-divider"></div>
-    <div class="hero-stat">
-      <div class="num">9</div>
-      <div class="label">Уровней протокола</div>
-    </div>
-    <div class="hero-stat-divider"></div>
-    <div class="hero-stat">
-      <div class="num">6000×</div>
-      <div class="label">Параллельное ускорение</div>
-    </div>
-  </div>
-  <div class="scroll-indicator">
-    <span>Листай</span>
-    <div class="chevron"></div>
-  </div>
+  <div class="scroll-hint"><span>Листай</span><div class="chev"></div></div>
 </section>
 
-<!-- Architecture -->
-<section id="architecture">
+<section id="timeline">
   <div class="container">
     <div class="section-header">
-      <div class="overline">Стек протокола</div>
-      <h2>9-уровневая архитектура</h2>
-      <p>От абсолютных ограничений безопасности до автономного самоулучшения — иерархический протокол надёжной AI-оркестрации.</p>
+      <h2>Хронология</h2>
+      <p>12 релизов за 30 дней — от идеи до production-ready платформы</p>
     </div>
-    <div class="tiers-grid">
-      <div class="tier-card"><div class="tier-num">TIER 0</div><h3>Hard Blocks</h3><p>Абсолютные запреты — неизменяемые ограничения безопасности, переопределяющие все остальные уровни.</p></div>
-      <div class="tier-card"><div class="tier-num">TIER 1</div><h3>HAL-9000</h3><p>Состязательная верификация — стресс-тестирование планов и результатов на граничные случаи и сценарии отказов.</p></div>
-      <div class="tier-card"><div class="tier-num">TIER 2</div><h3>PROACTIVE-4</h3><p>Генерация альтернативных подходов (Scale, Simplify, Specialize, Automate) перед принятием решений.</p></div>
-      <div class="tier-card"><div class="tier-num">TIER 3</div><h3>DDD</h3><p>Состязательное ревью — Devil's Advocate и Devil's Designer оспаривают каждое решение.</p></div>
-      <div class="tier-card"><div class="tier-num">TIER 4</div><h3>SDD</h3><p>Spec-Driven Development — формальная спецификация до написания кода.</p></div>
-      <div class="tier-card"><div class="tier-num">TIER 5</div><h3>Context Engineering</h3><p>Интеллектуальное построение промптов, инъекция памяти и оптимизация использования инструментов.</p></div>
-      <div class="tier-card"><div class="tier-num">TIER 6</div><h3>Budgets</h3><p>Распределение токенов и вычислительных бюджетов с динамическим масштабированием.</p></div>
-      <div class="tier-card"><div class="tier-num">TIER 7</div><h3>Identity</h3><p>Управление персонами агентов — ролевое поведение, тон и границы знаний.</p></div>
-      <div class="tier-card"><div class="tier-num">TIER 8</div><h3>Skills</h3><p>Доменные скиллы, загружаемые динамически под требования задачи.</p></div>
+    <div class="timeline">
+
+      <div class="tl-item">
+        <div class="tl-date">24-25 МАЯ 2026</div>
+        <h3>Ultima v5.0 — Перерождение</h3>
+        <p>Полная перезапись с нуля. Новая личность (Ultima — панк-рокер), 9-tier протокол, консилиум из 10 докторов, ChromaDB + Obsidian память. ~20 отборных скиллов. Закрытая элитная разработка.</p>
+        <span class="tag tag-purple">Архитектура</span>
+        <span class="tag tag-purple">Личность</span>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-date">29 МАЯ 2026</div>
+        <h3>Ultima v5.2 — Верта</h3>
+        <p>Автономный демон самоулучшения. 3 агента (analyst, improver, daemon), circuit breaker, IQR anomaly detection, health endpoint.</p>
+        <span class="tag tag-blue">Автономность</span>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-date">29 МАЯ 2026</div>
+        <h3>Ultima v5.2.1 — Консилиум</h3>
+        <p>Аудит 10 докторов. Модульная структура verta (11 файлов), immutable/runtime config split, 11 unit-тестов. Оценка: 4/10 → 8/10.</p>
+        <span class="tag tag-orange">Аудит</span>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-date">30 МАЯ 2026</div>
+        <h3>Ultima v5.3 — Engine Era</h3>
+        <p>DAGEngine + MCTS + MoA + Reflexion + 3-tier Memory. Бенчмарк: 83.8%. Консилиум вскрыл 3 архитектурные фикции (MoA-стаб, keyword-рефлексия, хардкоженные метрики).</p>
+        <span class="tag tag-purple">Движок</span>
+        <span class="tag tag-red">Кризис</span>
+      </div>
+
+      <div class="tl-item highlight">
+        <div class="tl-date">31 МАЯ 2026</div>
+        <h3>Ultima v5.4 — STABLE</h3>
+        <p>Death Spiral Fix: fallback_model вызывал бесконечные перезагрузки на серверах клиентов. Config validator, recovery script, systemd start limits, watchdog без reboot. <strong>Первый стабильный релиз.</strong></p>
+        <span class="tag tag-green">STABLE</span>
+        <span class="tag tag-red">Critical fix</span>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-date">1-7 ИЮНЯ 2026</div>
+        <h3>Ultima v5.5 — Self-Learning</h3>
+        <p>engine-5.5 заменил engine-5.3. Полная observability, A2A протокол, Knowledge Graph, Auto-SOP, Agent SDK, ultima-server (TypeScript), voice-input-plugin.</p>
+        <span class="tag tag-purple">Рефакторинг</span>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-date">8 ИЮНЯ 2026</div>
+        <h3>Ultima v5.5.2</h3>
+        <p>SkillRegistry класс, skill injection при старте, ревью и улучшение 15 агентов.</p>
+        <span class="tag tag-blue">Скиллы</span>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-date">9 ИЮНЯ 2026</div>
+        <h3>Ultima v5.5.3</h3>
+        <p>61 скилл, 62 алиаса, Windows installer, SSH BOM fix, security cleanup, Agent Queue deadlock fix, XSS fix.</p>
+        <span class="tag tag-green">Windows</span>
+        <span class="tag tag-orange">Security</span>
+      </div>
+
+      <div class="tl-item highlight">
+        <div class="tl-date">12 ИЮНЯ 2026</div>
+        <h3>Ultima v5.5.4 + v5.5.5</h3>
+        <p>Self-Correcting Memory, Graphify Bridge, Adaptive Scraper MCP, Feature-Dev Pipeline, Deep Research, Prompt Security. <strong>12 CRITICAL + 19 HIGH + 57+ фиксов.</strong> Все агенты переведены на бесплатные LLaMA 3.1 8B.</p>
+        <span class="tag tag-red">57+ фиксов</span>
+        <span class="tag tag-purple">Фича-дроп</span>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-date">17 ИЮНЯ 2026</div>
+        <h3>Ultima v5.5.10 — Эволюция</h3>
+        <p>5-stage модель взросления (RAG→Tools→Planning→Multi-Agent→Autonomous). SemanticDecomposer, PlanningGraph v2, AgentPool, ConflictResolver, GoalEngine, MetaCognition. 17 новых файлов, 12 тестов.</p>
+        <span class="tag tag-blue">Multi-Agent</span>
+      </div>
+
+      <div class="tl-item highlight">
+        <div class="tl-date">18 ИЮНЯ 2026</div>
+        <h3>Ultima v5.5.11 — Аудит</h3>
+        <p>Recursive Sub-Task Decomposition, Pause/Resume DAG, Auto Model Selection, MetaCognitionEngine, Autonomous Goal Setting. <strong>Консилиум 20 докторов:</strong> 14 критических фиксов. Убраны хардкодные ключи. MoA strict_mode. 35/35 тестов. OpenCode обновлён до v1.17.7.</p>
+        <span class="tag tag-green">Production</span>
+        <span class="tag tag-red">14 Critical</span>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-date">23 ИЮНЯ 2026</div>
+        <h3>Лендинг на GitHub</h3>
+        <p>Создан тёмный лендинг на русском языке, опубликован в репозитории achepurnov/ultima-landing.</p>
+        <span class="tag tag-purple">Веб</span>
+      </div>
+
     </div>
   </div>
 </section>
 
-<!-- Agents -->
-<section id="agents">
+<section id="stats">
   <div class="container">
     <div class="section-header">
-      <div class="overline">Сеть агентов</div>
-      <h2>15+ специализированных агентов</h2>
-      <p>Каждый агент создан для конкретной роли в конвейере оркестрации, взаимодействуя через MoA-консенсус.</p>
+      <h2>Цифры</h2>
+      <p>Сколько всего было сделано за 30 дней</p>
     </div>
-    <div class="agents-grid">
-      <div class="agent-chip"><div class="icon" style="background:var(--accent-glow)">🧠</div><div><div class="name">Planner</div><div class="role">MCTS · ToT · GoT</div></div></div>
-      <div class="agent-chip"><div class="icon" style="background:var(--green-glow)">🔍</div><div><div class="name">Explore</div><div class="role">Поиск по коду</div></div></div>
-      <div class="agent-chip"><div class="icon" style="background:rgba(0,180,216,0.12)">🔮</div><div><div class="name">Oracle</div><div class="role">Глубокие рассуждения</div></div></div>
-      <div class="agent-chip"><div class="icon" style="background:rgba(255,159,67,0.12)">🛠</div><div><div class="name">Builder</div><div class="role">Генерация кода</div></div></div>
-      <div class="agent-chip"><div class="icon" style="background:var(--accent-glow)">✍️</div><div><div class="name">Ichor</div><div class="role">Контент-пайплайн</div></div></div>
-      <div class="agent-chip"><div class="icon" style="background:var(--green-glow)">👁</div><div><div class="name">Reviewer</div><div class="role">Ревью кода</div></div></div>
-      <div class="agent-chip"><div class="icon" style="background:rgba(0,180,216,0.12)">🧪</div><div><div class="name">Tester</div><div class="role">Генерация тестов</div></div></div>
-      <div class="agent-chip"><div class="icon" style="background:rgba(255,159,67,0.12)">⚡</div><div><div class="name">Orchestrator</div><div class="role">DAG-движок</div></div></div>
-      <div class="agent-chip"><div class="icon" style="background:var(--accent-glow)">💾</div><div><div class="name">Memory</div><div class="role">3-уровневая память</div></div></div>
-      <div class="agent-chip"><div class="icon" style="background:var(--green-glow)">🔄</div><div><div class="name">Reflection</div><div class="role">Цикл рефлексии</div></div></div>
-      <div class="agent-chip"><div class="icon" style="background:rgba(0,180,216,0.12)">📊</div><div><div class="name">Consilium</div><div class="role">MoA-голосование</div></div></div>
-      <div class="agent-chip"><div class="icon" style="background:rgba(255,159,67,0.12)">📈</div><div><div class="name">Evaluator</div><div class="role">Бенчмаркинг</div></div></div>
+    <div class="stats-grid">
+      <div class="st-card">
+        <div class="big">73 538</div>
+        <div class="desc">Строк кода</div>
+        <div class="sub">51 216 Python + 22 322 JS/TS</div>
+      </div>
+      <div class="st-card">
+        <div class="big">12</div>
+        <div class="desc">Релизов</div>
+        <div class="sub">от v5.0 до v5.5.11</div>
+      </div>
+      <div class="st-card">
+        <div class="big">886</div>
+        <div class="desc">Файлов</div>
+        <div class="sub">включая 109 SKILL.md</div>
+      </div>
+      <div class="st-card">
+        <div class="big">35</div>
+        <div class="desc">Тестов</div>
+        <div class="sub">все проходят</div>
+      </div>
+      <div class="st-card">
+        <div class="big">15+</div>
+        <div class="desc">Агентов</div>
+        <div class="sub">Planner, Oracle, Builder и др.</div>
+      </div>
+      <div class="st-card">
+        <div class="big">65</div>
+        <div class="desc">Скиллов</div>
+        <div class="sub">dev, content, SEO, integrations</div>
+      </div>
+      <div class="st-card">
+        <div class="big">9</div>
+        <div class="desc">Уровней протокола</div>
+        <div class="sub">Hard Blocks → Skills</div>
+      </div>
+      <div class="st-card">
+        <div class="big">6000×</div>
+        <div class="desc">Ускорение</div>
+        <div class="sub">параллельные DAG-ветки</div>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- Features -->
-<section id="features">
+<section id="benchmarks">
   <div class="container">
     <div class="section-header">
-      <div class="overline">Возможности</div>
-      <h2>Ключевые возможности</h2>
-      <p>Инфраструктура enterprise-уровня для автономной AI-оркестрации.</p>
+      <h2>Эволюция бенчмарков</h2>
+      <p>Рост производительности от версии к версии (Benchmark Score)</p>
     </div>
-    <div class="features-grid">
-      <div class="feature-card">
-        <div class="f-icon purple">⚙️</div>
-        <h3>DAG-движок оркестрации</h3>
-        <p>Декомпозирует сложные задачи в направленные ациклические графы с параллельным исполнением ветвей, обеспечивая ускорение до 6000×.</p>
+    <div class="bm-chart">
+      <div class="bm-bar">
+        <div class="rect" style="height:30px;background:var(--text-muted);"></div>
+        <div class="perc" style="color:var(--text-muted);">24.7%</div>
+        <div class="lbl">Vanilla OpenCode</div>
       </div>
-      <div class="feature-card">
-        <div class="f-icon green">🧠</div>
-        <h3>Mixture-of-Agents консилиум</h3>
-        <p>Множество агентов взаимодействуют через ревью и взвешенное голосование для достижения консенсуса, обеспечивая надёжность через разнообразие перспектив.</p>
+      <div class="bm-bar">
+        <div class="rect" style="height:36px;background:var(--orange);"></div>
+        <div class="perc" style="color:var(--orange);">29.7%</div>
+        <div class="lbl">OhMyCHE 3.4</div>
       </div>
-      <div class="feature-card">
-        <div class="f-icon cyan">🔄</div>
-        <h3>Цикл обучения Reflexion</h3>
-        <p>Каждое выполнение извлекает уроки в процедурную память, обеспечивая непрерывное самоулучшение между сессиями.</p>
+      <div class="bm-bar">
+        <div class="rect" style="height:56px;background:#a29bfe;"></div>
+        <div class="perc" style="color:#a29bfe;">46.2%</div>
+        <div class="lbl">OhMyCHE 4.x</div>
       </div>
-      <div class="feature-card">
-        <div class="f-icon orange">💾</div>
-        <h3>3-уровневая система памяти</h3>
-        <p>Эпизодическая память (следы сессий), семантическая (ChromaDB векторное хранилище) и процедурная (выученные скиллы и паттерны).</p>
+      <div class="bm-bar">
+        <div class="rect" style="height:70px;background:var(--accent-light);"></div>
+        <div class="perc" style="color:var(--accent-light);">58.1%</div>
+        <div class="lbl">Ultima 5.1</div>
       </div>
-      <div class="feature-card">
-        <div class="f-icon purple">🛡️</div>
-        <h3>Состязательная верификация</h3>
-        <p>Агенты HAL-9000 и DDD активно ищут граничные случаи, сценарии отказов и логические ошибки до выполнения любого действия.</p>
+      <div class="bm-bar">
+        <div class="rect" style="height:74px;background:var(--accent);"></div>
+        <div class="perc" style="color:var(--accent);">60.8%</div>
+        <div class="lbl">Ultima 5.2</div>
       </div>
-      <div class="feature-card">
-        <div class="f-icon green">🔌</div>
-        <h3>65 доменных скиллов</h3>
-        <p>Триггер-активируемые скиллы для разработки, контента, SEO, интеграций и анализа данных — загружаются по требованию.</p>
+      <div class="bm-bar">
+        <div class="rect" style="height:100px;background:var(--green);"></div>
+        <div class="perc" style="color:var(--green);">83.8%</div>
+        <div class="lbl">Ultima 5.3</div>
       </div>
-      <div class="feature-card">
-        <div class="f-icon cyan">📡</div>
-        <h3>Экосистема MCP-серверов</h3>
-        <p>GitHub, веб-поиск (Bing), lazyweb, адаптивный скрапинг, транскрибация — растущий набор Model Context Protocol серверов.</p>
-      </div>
-      <div class="feature-card">
-        <div class="f-icon orange">🤖</div>
-        <h3>Verta — самоулучшение</h3>
-        <p>Автономный демон с circuit breaker'ами и мониторингом здоровья, непрерывно оптимизирующий саму платформу.</p>
+      <div class="bm-bar">
+        <div class="rect" style="height:40px;background:var(--text-muted);"></div>
+        <div class="perc" style="color:var(--text-muted);">TBD</div>
+        <div class="lbl">Ultima 5.5</div>
       </div>
     </div>
+    <p style="text-align:center;color:var(--text-muted);font-size:12px;margin-top:8px;">* Score 83.8% частично получен из хардкоженных метрик (вскрыто аудитом)</p>
   </div>
 </section>
 
-<!-- Skills -->
-<section id="skills">
+<section id="tech">
   <div class="container">
     <div class="section-header">
-      <div class="overline">Реестр скиллов</div>
-      <h2>65 доменных скиллов</h2>
-      <p>Триггер-активируемые возможности, сгруппированные по доменам, загружаемые динамически под контекст задачи.</p>
+      <h2>Технологии</h2>
+      <p>Стек платформы Ultima 5.5</p>
     </div>
-    <div class="skills-categories">
-      <div class="skill-cat">
-        <h3>⚡ Базовая оркестрация <span class="count">(4)</span></h3>
-        <div class="skill-tags">
-          <span class="skill-tag">agentic-core</span>
-          <span class="skill-tag">context-engineering</span>
-          <span class="skill-tag">memory-compiler</span>
-          <span class="skill-tag">spec-driven-dev</span>
-        </div>
+    <div class="tech-grid">
+      <div class="tech-card">
+        <h3>⚙️ Ядро</h3>
+        <ul>
+          <li>Engine <span class="val">engine-5.5/</span></li>
+          <li>Планировщик <span class="val">MCTS / ToT / GoT</span></li>
+          <li>Оркестратор <span class="val">DAGEngine v2</span></li>
+          <li>Агенты <span class="val">MoA + Consilium</span></li>
+          <li>Память <span class="val">3-tier + ChromaDB</span></li>
+          <li>Рефлексия <span class="val">Reflexion Loop</span></li>
+        </ul>
       </div>
-      <div class="skill-cat">
-        <h3>🛠 Разработка <span class="count">(5+)</span></h3>
-        <div class="skill-tags">
-          <span class="skill-tag">feature-dev</span>
-          <span class="skill-tag">fastapi-templates</span>
-          <span class="skill-tag">sqlalchemy</span>
-          <span class="skill-tag">pydantic</span>
-          <span class="skill-tag">python-patterns</span>
-        </div>
+      <div class="tech-card">
+        <h3>🔌 Интеграции</h3>
+        <ul>
+          <li>MCP серверы <span class="val">5</span></li>
+          <li>Web Search <span class="val">Bing</span></li>
+          <li>GitHub <span class="val">MCP</span></li>
+          <li>Adaptive Scraper <span class="val">Scrapling</span></li>
+          <li>Transcribe <span class="val">Whisper</span></li>
+          <li>Voice Input <span class="val">plugin</span></li>
+        </ul>
       </div>
-      <div class="skill-cat">
-        <h3>🎨 Фронтенд <span class="count">(3+)</span></h3>
-        <div class="skill-tags">
-          <span class="skill-tag">cheland</span>
-          <span class="skill-tag">design-system</span>
-          <span class="skill-tag">image-service</span>
-        </div>
-      </div>
-      <div class="skill-cat">
-        <h3>✍️ Контент <span class="count">(3+)</span></h3>
-        <div class="skill-tags">
-          <span class="skill-tag">ichor (6-stage)</span>
-          <span class="skill-tag">humanizer (29 pat.)</span>
-          <span class="skill-tag">marketing-cro</span>
-          <span class="skill-tag">seo</span>
-        </div>
-      </div>
-      <div class="skill-cat">
-        <h3>🔗 Интеграции <span class="count">(6+)</span></h3>
-        <div class="skill-tags">
-          <span class="skill-tag">yandex-metrica</span>
-          <span class="skill-tag">yandex-direct</span>
-          <span class="skill-tag">yandex-webmaster</span>
-          <span class="skill-tag">telegram-neon</span>
-          <span class="skill-tag">google-calendar</span>
-          <span class="skill-tag">google-drive/mail</span>
-        </div>
-      </div>
-      <div class="skill-cat">
-        <h3>🧠 Память и обучение <span class="count">(3+)</span></h3>
-        <div class="skill-tags">
-          <span class="skill-tag">episodic-memory</span>
-          <span class="skill-tag">semantic-chromadb</span>
-          <span class="skill-tag">procedural-memory</span>
-          <span class="skill-tag">reflexion-loop</span>
-        </div>
+      <div class="tech-card">
+        <h3>📦 Языки</h3>
+        <ul>
+          <li>Python <span class="val">51 216 строк</span></li>
+          <li>TypeScript <span class="val">22 322 строк</span></li>
+          <li>Модели <span class="val">LLaMA 3.1 8B</span></li>
+          <li>Векторная БД <span class="val">ChromaDB</span></li>
+          <li>Визуализация <span class="val">Grafana</span></li>
+          <li>CI/CD <span class="val">нет (ручной деплой)</span></li>
+        </ul>
       </div>
     </div>
   </div>
 </section>
 
-<!-- CTA -->
-<section class="cta-section">
+<section style="padding:100px 0;text-align:center;position:relative;">
   <div class="container">
-    <h2>Создана для <span class="gradient" style="background:var(--gradient-3);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">автономной</span> эволюции</h2>
-    <p>Ultima непрерывно улучшает себя — каждое выполнение делает следующее умнее. Платформа — свой собственный продукт.</p>
-    <a href="https://github.com/ichepurnov/ultima5" class="btn btn-primary" target="_blank">На GitHub →</a>
+    <h2 style="font-size:clamp(28px,3.5vw,40px);font-weight:800;letter-spacing:-0.03em;margin-bottom:16px;position:relative;">
+      За <span class="g" style="background:var(--gradient-3);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">30 дней</span> от идеи до платформы
+    </h2>
+    <p style="color:var(--text-secondary);font-size:16px;max-width:560px;margin:0 auto 32px;position:relative;">
+      Форкнул открытого агента → переписал с нуля → 12 релизов → production-ready<br>
+      73 500 строк, 65 скиллов, 15+ агентов, автономное самоулучшение
+    </p>
+    <a href="https://github.com/ichepurnov/ultima5" class="btn" style="display:inline-flex;align-items:center;gap:8px;padding:14px 32px;border-radius:12px;font-size:15px;font-weight:600;text-decoration:none;background:var(--gradient-1);color:#fff;box-shadow:0 4px 24px var(--accent-glow);transition:all 0.3s;cursor:pointer;" target="_blank"
+    onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 40px rgba(108,92,231,0.3)'"
+    onmouseout="this.style.transform='';this.style.boxShadow=''">
+      Исходный код →
+    </a>
   </div>
 </section>
 
-<!-- Footer -->
 <footer>
-  <span>Ultima v5.5 · Самообучающаяся AI-оркестрация</span>
+  <span>Ultima v5.5 · 30 дней разработки</span>
   <span>Создано <a href="https://github.com/achepurnov" target="_blank">Алексеем Чепурновым</a></span>
 </footer>
 
-<!-- Particles -->
 <script>
-const canvas = document.getElementById('particles-canvas');
-const ctx = canvas.getContext('2d');
+const c = document.getElementById('canvas');
+const ctx = c.getContext('2d');
 let particles = [];
-let mouseX = 0, mouseY = 0;
+let mx = 0, my = 0;
 
-function resize() {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-}
+function resize() { c.width = window.innerWidth; c.height = window.innerHeight; }
 resize();
 window.addEventListener('resize', resize);
-window.addEventListener('mousemove', e => { mouseX = e.clientX; mouseY = e.clientY; });
+window.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
 
-class Particle {
+class P {
   constructor() { this.reset(); }
   reset() {
-    this.x = Math.random() * canvas.width;
-    this.y = Math.random() * canvas.height;
-    this.size = Math.random() * 2 + 0.5;
-    this.speedX = (Math.random() - 0.5) * 0.3;
-    this.speedY = (Math.random() - 0.5) * 0.3;
-    this.opacity = Math.random() * 0.5 + 0.1;
+    this.x = Math.random() * c.width;
+    this.y = Math.random() * c.height;
+    this.s = Math.random() * 2 + 0.5;
+    this.vx = (Math.random() - 0.5) * 0.3;
+    this.vy = (Math.random() - 0.5) * 0.3;
+    this.o = Math.random() * 0.5 + 0.1;
   }
   update() {
-    this.x += this.speedX;
-    this.y += this.speedY;
-    const dx = mouseX - this.x;
-    const dy = mouseY - this.y;
+    this.x += this.vx;
+    this.y += this.vy;
+    const dx = mx - this.x, dy = my - this.y;
     const dist = Math.sqrt(dx * dx + dy * dy);
-    if (dist < 200) {
-      this.x -= dx * 0.002;
-      this.y -= dy * 0.002;
-    }
-    if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) this.reset();
+    if (dist < 200) { this.x -= dx * 0.002; this.y -= dy * 0.002; }
+    if (this.x < 0 || this.x > c.width || this.y < 0 || this.y > c.height) this.reset();
   }
   draw() {
     ctx.beginPath();
-    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-    ctx.fillStyle = `rgba(108, 92, 231, ${this.opacity})`;
+    ctx.arc(this.x, this.y, this.s, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(108, 92, 231, ${this.o})`;
     ctx.fill();
   }
 }
 
-for (let i = 0; i < 80; i++) particles.push(new Particle());
+for (let i = 0; i < 80; i++) particles.push(new P());
 
-let connections = [];
-function updateConnections() {
-  connections = [];
+function anim() {
+  ctx.clearRect(0, 0, c.width, c.height);
+  particles.forEach(p => { p.update(); p.draw(); });
   for (let i = 0; i < particles.length; i++) {
     for (let j = i + 1; j < particles.length; j++) {
       const dx = particles[i].x - particles[j].x;
       const dy = particles[i].y - particles[j].y;
       const dist = Math.sqrt(dx * dx + dy * dy);
-      if (dist < 180) connections.push({ i, j, dist });
+      if (dist < 180) {
+        const o = (1 - dist / 180) * 0.15;
+        ctx.beginPath();
+        ctx.moveTo(particles[i].x, particles[i].y);
+        ctx.lineTo(particles[j].x, particles[j].y);
+        ctx.strokeStyle = `rgba(108, 92, 231, ${o})`;
+        ctx.lineWidth = 0.5;
+        ctx.stroke();
+      }
     }
   }
+  requestAnimationFrame(anim);
 }
-
-function animate() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  particles.forEach(p => { p.update(); p.draw(); });
-  updateConnections();
-  connections.forEach(c => {
-    const p1 = particles[c.i], p2 = particles[c.j];
-    const opacity = (1 - c.dist / 180) * 0.15;
-    ctx.beginPath();
-    ctx.moveTo(p1.x, p1.y);
-    ctx.lineTo(p2.x, p2.y);
-    ctx.strokeStyle = `rgba(108, 92, 231, ${opacity})`;
-    ctx.lineWidth = 0.5;
-    ctx.stroke();
-  });
-  requestAnimationFrame(animate);
-}
-animate();
+anim();
 </script>
 </body>
 </html>
